@@ -10,10 +10,12 @@ type MovePayload = {
 
 type gameStateType = {
   position: string[][];
+  turn: string;
 };
 
 const initialState: gameStateType = {
   position: initialPosition(),
+  turn: "w",
 };
 
 const gameState = createSlice({
@@ -30,6 +32,7 @@ const gameState = createSlice({
 
       // Clear the source square
       state.position[sourceRowIndex][sourceColIndex] = "";
+      state.turn = state.turn === "w" ? "b" : "w";
     },
   },
 });

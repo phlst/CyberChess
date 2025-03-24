@@ -1,5 +1,7 @@
+import { RootState } from "@/app/store/store";
 import Image from "next/image";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 type PieceProps = {
   rowIndex: number;
@@ -8,6 +10,8 @@ type PieceProps = {
 };
 
 function Piece({ rowIndex, colIndex, piece }: PieceProps) {
+  const turn = useSelector((state: RootState) => state.gameState.turn);
+  const draggable = turn === piece.split("")[0];
   const [isDragging, setIsDragging] = useState(false);
 
   const onDragStart = (e: React.DragEvent<HTMLDivElement>) => {
@@ -41,7 +45,7 @@ function Piece({ rowIndex, colIndex, piece }: PieceProps) {
         gridRowEnd: rowIndex + 2,
         gridColumnEnd: colIndex + 2,
       }}
-      draggable="true"
+      draggable={draggable}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
     >

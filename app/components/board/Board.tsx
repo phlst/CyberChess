@@ -7,6 +7,7 @@ import { movePiece } from "@/app/store/gameState/gameState";
 
 function Board() {
   const position = useSelector((state: RootState) => state.gameState.position);
+  const turn = useSelector((state: RootState) => state.gameState.turn);
   const dispatch = useDispatch();
   const [draggedPiece, setDraggedPiece] = useState<{
     piece: string;
@@ -17,14 +18,25 @@ function Board() {
   // Create the 8x8 board array
   const boardArray = Array.from({ length: 8 }, () => new Array(8).fill(null));
 
+  // Check if a piece is allowed to be dragged based on turn
+  const canDragPiece = (piece: string) => {
+    const pieceColor = piece.charAt(0); // 'w' for white, 'b' for black
+    return pieceColor === turn;
+  };
+
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
     piece: string,
     rowIndex: number,
     colIndex: number
   ) => {
+    // Check if the piece is allowed to be dragged (based on turn)
+    if (!canDragPiece(piece)) {
+      e.preventDefault(); // Prevent drag if not this player's turn
+      return;
+    }
+
     e.stopPropagation();
-    console.log("Drag start:", piece, rowIndex, colIndex);
 
     // Set which piece is being dragged
     setDraggedPiece({ piece, rowIndex, colIndex });
@@ -52,11 +64,12 @@ function Board() {
     e.stopPropagation();
 
     if (draggedPiece) {
-      const { rowIndex: sourceRow, colIndex: sourceCol } = draggedPiece;
+      const { rowIndex: sourceRow, colIndex: sourceCol, piece } = draggedPiece;
 
-      console.log(
-        `Moving piece from [${sourceRow},${sourceCol}] to [${targetRow},${targetCol}]`
-      );
+      // Only allow the drop if it's this piece's turn
+      if (!canDragPiece(piece)) {
+        return;
+      }
 
       // Dispatch action to move the piece in the Redux store
       if (sourceCol !== targetCol || sourceRow !== targetRow) {
@@ -68,11 +81,10 @@ function Board() {
             targetColIndex: targetCol,
           })
         );
-        setDraggedPiece(null);
       }
-    } else {
-      console.log("No drag data available");
     }
+
+    setDraggedPiece(null);
   };
 
   // Helper to determine if a piece should be hidden (if it's the one being dragged)
@@ -91,6 +103,7 @@ function Board() {
           row.map((_, colIndex) => {
             const piece = position[rowIndex][colIndex];
             const isHidden = shouldHidePiece(rowIndex, colIndex);
+            const isDraggable = piece && canDragPiece(piece);
 
             return (
               <div
@@ -107,21 +120,26 @@ function Board() {
               >
                 {piece && (
                   <div
-                    className={`absolute inset-0 w-full h-full z-10 cursor-grab active:cursor-grabbing ${
-                      isHidden ? "opacity-30" : ""
-                    }`}
-                    draggable={true}
+                    className={`absolute inset-0 w-full h-full z-10 
+                      ${
+                        isDraggable
+                          ? "cursor-grab active:cursor-grabbing"
+                          : "cursor-default"
+                      } 
+                      ${isHidden ? "opacity-30" : ""}`}
+                    draggable={!!isDraggable}
                     onDragStart={(e) =>
                       handleDragStart(e, piece, rowIndex, colIndex)
                     }
                     onDragEnd={handleDragEnd}
+                    data-draggable={isDraggable}
                   >
                     <div className="relative w-full h-full">
                       <Image
                         src={`/pieces/${piece}.svg`}
                         alt={piece}
                         fill
-                        className="object-contain"
+                        className="object-contain pointer-events-none"
                         priority={true}
                         draggable={false}
                       />
