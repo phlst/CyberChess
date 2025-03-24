@@ -7,10 +7,7 @@ function Pieces() {
   const position = useSelector((state: RootState) => state.gameState.position);
 
   return (
-    <div
-      className="absolute top-0 left-0 w-full h-full grid grid-cols-8 grid-rows-8"
-      style={{ zIndex: 5 }}
-    >
+    <div className="absolute inset-0 w-full h-full">
       {position.map((row, rowIndex) =>
         row.map(
           (piece, colIndex) =>

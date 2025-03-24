@@ -45,3 +45,111 @@ export function initialPosition() {
 
   return position;
 }
+
+// Movement directions for chess pieces
+export const PIECE_MOVES = {
+  // Rook moves horizontally and vertically
+  ROOK_DIRECTIONS: [
+    [0, 1], // up
+    [0, -1], // down
+    [1, 0], // right
+    [-1, 0], // left
+  ],
+
+  // Bishop moves diagonally
+  BISHOP_DIRECTIONS: [
+    [1, 1], // up-right
+    [1, -1], // down-right
+    [-1, 1], // up-left
+    [-1, -1], // down-left
+  ],
+
+  // Queen combines rook and bishop moves
+  QUEEN_DIRECTIONS: [
+    // Horizontal and vertical (rook-like)
+    [0, 1], // up
+    [0, -1], // down
+    [1, 0], // right
+    [-1, 0], // left
+    // Diagonal (bishop-like)
+    [1, 1], // up-right
+    [1, -1], // down-right
+    [-1, 1], // up-left
+    [-1, -1], // down-left
+  ],
+
+  // Knight moves in L-shape
+  KNIGHT_MOVES: [
+    [2, 1], // right 2, up 1
+    [2, -1], // right 2, down 1
+    [-2, 1], // left 2, up 1
+    [-2, -1], // left 2, down 1
+    [1, 2], // right 1, up 2
+    [1, -2], // right 1, down 2
+    [-1, 2], // left 1, up 2
+    [-1, -2], // left 1, down 2
+  ],
+
+  // King moves one square in any direction
+  KING_MOVES: [
+    [0, 1], // up
+    [0, -1], // down
+    [1, 0], // right
+    [-1, 0], // left
+    [1, 1], // up-right
+    [1, -1], // down-right
+    [-1, 1], // up-left
+    [-1, -1], // down-left
+  ],
+
+  // Pawn moves by color
+  PAWN_MOVES: {
+    WHITE: {
+      NORMAL: [0, -1], // up one square
+      FIRST_MOVE: [0, -2], // up two squares
+      CAPTURES: [
+        [1, -1], // capture diagonally right
+        [-1, -1], // capture diagonally left
+      ],
+    },
+    BLACK: {
+      NORMAL: [0, 1], // down one square
+      FIRST_MOVE: [0, 2], // down two squares
+      CAPTURES: [
+        [1, 1], // capture diagonally right
+        [-1, 1], // capture diagonally left
+      ],
+    },
+  },
+};
+
+// Helper function to get all candidate moves for a piece
+export function getMovementDirections(piece: string): number[][] {
+  const pieceType = piece.charAt(1).toLowerCase();
+  const color = piece.charAt(0);
+
+  switch (pieceType) {
+    case "r":
+      return PIECE_MOVES.ROOK_DIRECTIONS;
+    case "b":
+      return PIECE_MOVES.BISHOP_DIRECTIONS;
+    case "q":
+      return PIECE_MOVES.QUEEN_DIRECTIONS;
+    case "n":
+      return PIECE_MOVES.KNIGHT_MOVES;
+    case "k":
+      return PIECE_MOVES.KING_MOVES;
+    case "p":
+      return color === "w"
+        ? [...PIECE_MOVES.PAWN_MOVES.WHITE.CAPTURES]
+        : [...PIECE_MOVES.PAWN_MOVES.BLACK.CAPTURES];
+    default:
+      return [];
+  }
+}
+
+// Helper to determine if a piece can move in sliding directions (rook, bishop, queen)
+export function isSlidingPiece(piece: string): boolean {
+  const pieceType = piece.charAt(1).toLowerCase();
+  return pieceType === "r" || pieceType === "b" || pieceType === "q";
+}

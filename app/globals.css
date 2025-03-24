@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --tile-size: 50px; /* Default tile size */
+  --tile-size: min(10vw, 10vh); /* Adjust based on your existing sizing */
 }
 
 @theme inline {
@@ -19,7 +19,7 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    --tile-size: 50px;
+    --tile-size: min(10vw, 10vh);
     --tile-light: #edd6b0;
     --tile-dark: #b88762;
   }
@@ -65,4 +65,173 @@ body {
   :root {
     --tile-size: 110px;
   }
+}
+
+/* Add these styles to fix the promotion box appearance */
+.promotion-indicator {
+  box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.7);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(250, 204, 21, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0);
+  }
+}
+
+/* Check indicator animation */
+.check-indicator {
+  animation: pulse-check 1.5s infinite;
+}
+
+@keyframes pulse-check {
+  0% {
+    box-shadow: inset 0 0 0 2px rgba(255, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: inset 0 0 0 8px rgba(255, 0, 0, 0.7);
+  }
+  100% {
+    box-shadow: inset 0 0 0 2px rgba(255, 0, 0, 0.5);
+  }
+}
+
+/* King in check style */
+.king-in-check {
+  background-color: rgba(255, 0, 0, 0.3) !important;
+  animation: pulse-check 1s infinite alternate;
+}
+
+@keyframes pulse-check {
+  from {
+    box-shadow: inset 0 0 0 4px rgba(255, 0, 0, 0.5);
+  }
+  to {
+    box-shadow: inset 0 0 0 4px rgba(255, 0, 0, 0.8);
+  }
+}
+
+/* Improve check indicator animation */
+.pulse-animation {
+  animation: pulse-check 1.5s infinite alternate;
+}
+
+@keyframes pulse-check {
+  0% {
+    background-color: rgba(255, 0, 0, 0.3);
+    box-shadow: inset 0 0 0 3px rgba(255, 0, 0, 0.5);
+  }
+  100% {
+    background-color: rgba(255, 0, 0, 0.5);
+    box-shadow: inset 0 0 0 3px rgba(255, 0, 0, 0.8);
+  }
+}
+
+/* Z-index hierarchy for chess components */
+.chess-board {
+  position: relative;
+  z-index: 1;
+}
+
+.chess-square {
+  position: relative;
+  z-index: 5;
+}
+
+.check-indicator {
+  z-index: 10;
+}
+
+.candidate-move {
+  z-index: 15;
+  pointer-events: auto !important;
+}
+
+.chess-piece {
+  z-index: 20;
+  pointer-events: auto !important;
+}
+
+.promotion-box {
+  z-index: 50;
+}
+
+/* Better indicator styles */
+.move-indicator {
+  transition: all 0.15s ease-in-out;
+  pointer-events: auto !important;
+  background-color: rgba(85, 85, 85, 0.6) !important;
+}
+
+.move-indicator div {
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.move-indicator:hover div {
+  transform: scale(1.2);
+  opacity: 0.9 !important;
+}
+
+.move-indicator:hover {
+  background-color: rgba(85, 85, 85, 0.9) !important;
+  transform: scale(1.2);
+}
+
+.capture-indicator {
+  transition: all 0.15s ease-in-out;
+  pointer-events: auto !important;
+  border: 3px solid rgba(255, 204, 0, 0.6) !important;
+}
+
+.capture-indicator div {
+  transition: transform 0.2s, border-width 0.2s, opacity 0.2s;
+}
+
+.capture-indicator:hover div {
+  transform: scale(1.1);
+  border-width: 4px !important;
+  opacity: 0.9 !important;
+}
+
+.capture-indicator:hover {
+  border: 3px solid rgba(255, 204, 0, 0.9) !important;
+  transform: scale(1.1);
+}
+
+/* Ensure dragged pieces look correct */
+[draggable="true"] {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: element;
+  touch-action: none;
+  cursor: grab !important;
+  user-select: none !important;
+}
+
+[draggable="true"]:active {
+  cursor: grabbing;
+  cursor: grabbing !important;
+}
+
+/* Hide ghost image during drag */
+[draggable="true"] img {
+  user-drag: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  user-drag: none;
+  -webkit-user-drag: none;
+}
+
+/* Fix z-index and pointer events */
+.piece {
+  position: absolute;
+  pointer-events: auto !important;
+  user-select: none;
+  touch-action: none;
 }

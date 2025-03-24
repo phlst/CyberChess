@@ -1,7 +1,8 @@
 import { RootState } from "@/app/store/store";
 import Image from "next/image";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { selectPiece } from "@/app/store/gameState/gameState";
 
 type PieceProps = {
   rowIndex: number;
@@ -11,50 +12,91 @@ type PieceProps = {
 
 function Piece({ rowIndex, colIndex, piece }: PieceProps) {
   const turn = useSelector((state: RootState) => state.gameState.turn);
-  const draggable = turn === piece.split("")[0];
+  const selectedPiece = useSelector(
+    (state: RootState) => state.gameState.selectedPiece
+  );
+  const isSelected =
+    selectedPiece &&
+    selectedPiece.rowIndex === rowIndex &&
+    selectedPiece.colIndex === colIndex;
+  const dispatch = useDispatch();
+
+  const draggable = turn === piece.charAt(0);
   const [isDragging, setIsDragging] = useState(false);
 
   const onDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    console.log("Drag started:", rowIndex, colIndex, piece);
+    if (!draggable) {
+      e.preventDefault();
+      return;
+    }
 
-    const data = JSON.stringify({
+    // Set drag data
+    const stringData = JSON.stringify({
       piece,
       rowIndex,
       colIndex,
     });
 
-    e.dataTransfer.setData("application/json", data);
+    try {
+      e.dataTransfer.setData("text/plain", stringData);
+    } catch (err) {
+      console.error("Error setting drag data:", err);
+    }
+
+    // Set drag appearance
     e.dataTransfer.effectAllowed = "move";
 
     setIsDragging(true);
+
+    // Select the piece
+    dispatch(selectPiece({ rowIndex, colIndex }));
   };
 
-  const onDragEnd = () => {
-    console.log("Drag ended");
+  const onDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
     setIsDragging(false);
+
+    // If the drag was cancelled (not dropped on a valid target)
+    if (e.dataTransfer.dropEffect === "none") {
+      // Deselect the piece
+      dispatch(selectPiece({ rowIndex: null, colIndex: null }));
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (draggable) {
+      dispatch(
+        selectPiece({
+          rowIndex: isSelected ? null : rowIndex,
+          colIndex: isSelected ? null : colIndex,
+        })
+      );
+    }
   };
 
   return (
     <div
-      className={`chess-piece ${
-        isDragging ? "opacity-0" : ""
-      } absolute w-[var(--tile-size)] h-[var(--tile-size)]`}
+      className={`piece absolute ${isDragging ? "opacity-50" : ""}`}
       style={{
-        gridRowStart: rowIndex + 1,
-        gridColumnStart: colIndex + 1,
-        gridRowEnd: rowIndex + 2,
-        gridColumnEnd: colIndex + 2,
+        width: "var(--tile-size)",
+        height: "var(--tile-size)",
+        top: `calc(${rowIndex} * var(--tile-size))`,
+        left: `calc(${colIndex} * var(--tile-size))`,
+        cursor: draggable ? "grab" : "default",
+        zIndex: isSelected ? 45 : 40,
       }}
       draggable={draggable}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
+      onClick={handleClick}
     >
       <Image
         src={`/pieces/${piece}.svg`}
         alt={piece}
         fill
-        className="object-contain"
+        className="pointer-events-none"
         priority={true}
+        draggable={false}
       />
     </div>
   );
