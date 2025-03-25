@@ -1,13 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import gameStateReducer from "./gameState/gameState";
+import multiplayerReducer from "./gameState/multiplayerState";
 
 export const store = configureStore({
   reducer: {
     gameState: gameStateReducer,
+    multiplayerState: multiplayerReducer,
   },
 });
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
